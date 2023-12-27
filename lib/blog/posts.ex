@@ -20,7 +20,10 @@ defmodule Blog.Posts do
   def list_posts(params) do
     search = "%#{params["title"]}%"
     Post
-    |> where([p],ilike(p.title, ^search))
+    |> where([p], ilike(p.title, ^search))
+    |> where([p], p.visibility == true)
+    |> where([p], p.published_on <= ^DateTime.utc_now())
+    |> order_by([p], desc: p.published_on)
     |> Repo.all()
   end
 
