@@ -4,8 +4,8 @@ defmodule BlogWeb.PostController do
   alias Blog.Posts
   alias Blog.Posts.Post
 
-  def index(conn, _params) do
-    posts = Posts.list_posts()
+  def index(conn, params) do
+    posts = Posts.list_posts(params)
     render(conn, :index, posts: posts)
   end
 

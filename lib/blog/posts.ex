@@ -17,8 +17,11 @@ defmodule Blog.Posts do
       [%Post{}, ...]
 
   """
-  def list_posts do
-    Repo.all(Post)
+  def list_posts(params) do
+    search = "%#{params["title"]}%"
+    Post
+    |> where([p],ilike(p.title, ^search))
+    |> Repo.all()
   end
 
   @doc """
