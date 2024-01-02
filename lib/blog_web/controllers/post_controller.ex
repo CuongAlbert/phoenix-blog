@@ -1,7 +1,9 @@
 defmodule BlogWeb.PostController do
   use BlogWeb, :controller
 
+  alias Blog.Comments.Comment
   alias Blog.Posts
+  alias Blog.Comments
   alias Blog.Posts.Post
 
   def index(conn, params) do
@@ -26,9 +28,26 @@ defmodule BlogWeb.PostController do
     end
   end
 
+  def create(conn, %{"comment" => comment_params, "id" => post_id}) do
+    case Comments.create_comment(post_id, comment_params) do
+      {:ok, _comment} ->
+        conn
+        |> put_flash(:info, "Comment created successfully.")
+        # redirect to the post show page where the comment form is rendered
+        |> redirect(to: ~p"/posts/#{post_id}")
+
+      {:error, %Ecto.Changeset{} = comment_changeset} ->
+        post = Posts.get_post!(comment_params["post_id"])
+        # re-render the post show page with a comment changeset that the page uses to display errors.
+        render(conn, :show, post: post, comment_changeset: comment_changeset)
+    end
+  end
+
   def show(conn, %{"id" => id}) do
     post = Posts.get_post!(id)
-    render(conn, :show, post: post)
+    comments = Comments.get_comments!(id)
+    comment_changeset = Comments.change_comment(%Comment{})
+    render(conn, :show, post: post, comments: comments, comment_changeset: comment_changeset)
   end
 
   def edit(conn, %{"id" => id}) do
@@ -58,5 +77,14 @@ defmodule BlogWeb.PostController do
     conn
     |> put_flash(:info, "Post deleted successfully.")
     |> redirect(to: ~p"/posts")
+  end
+
+  def delete_comment(conn, %{"id" => id}) do
+    comment = Comments.get_comment!(id)
+    {:ok, _comment} = Comments.delete_comment(comment)
+
+    conn
+    |> put_flash(:info, "Post deleted successfully.")
+    |> redirect(to: ~p"/posts/#{comment.post_id}")
   end
 end

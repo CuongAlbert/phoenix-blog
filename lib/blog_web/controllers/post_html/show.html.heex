@@ -15,4 +15,20 @@
   <:item title="Visibility"><%= @post.visibility %></:item>
 </.list>
 
+<.simple_form :let={f} for={@comment_changeset} action={~p"/posts/#{@post.id}"}>
+  <.input field={f[:content]} type="text" label="Content" />
+  <:actions>
+  <.button>Save Comment</.button>
+  </:actions>
+</.simple_form>
+
+<.table id="comments" rows={@comments}>
+  <:col :let={comment} label="Comment"><%= comment.content %></:col>
+  <:action :let={comment}>
+    <.link href={~p"/comments/#{comment.id}"} method="delete" data-confirm="Are you sure?">
+      Delete
+    </.link>
+  </:action>
+</.table>
+
 <.back navigate={~p"/posts"}>Back to posts</.back>
