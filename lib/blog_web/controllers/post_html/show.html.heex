@@ -25,6 +25,11 @@
 <.table id="comments" rows={@comments}>
   <:col :let={comment} label="Comment"><%= comment.content %></:col>
   <:action :let={comment}>
+    <.link href={~p"/posts/#{comment.id}"}>
+      Edit
+    </.link>
+  </:action>
+  <:action :let={comment}>
     <.link href={~p"/comments/#{comment.id}"} method="delete" data-confirm="Are you sure?">
       Delete
     </.link>
