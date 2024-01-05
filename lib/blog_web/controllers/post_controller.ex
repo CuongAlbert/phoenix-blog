@@ -28,7 +28,7 @@ defmodule BlogWeb.PostController do
     end
   end
 
-  def create(conn, %{"comment" => comment_params, "id" => post_id}) do
+  def create_comment(conn, %{"comment" => comment_params, "post_id" => post_id}) do
     case Comments.create_comment(post_id, comment_params) do
       {:ok, _comment} ->
         conn
@@ -56,9 +56,17 @@ defmodule BlogWeb.PostController do
     render(conn, :edit, post: post, changeset: changeset)
   end
 
+  def change_comment(conn, %{"id" => id}) do
+    comment = Comments.get_comment!(id)
+    post = Posts.get_post!(comment.post_id)
+    comments = Comments.get_comments!(comment.post_id) -- [comment]
+    changeset = Comments.change_comment(comment)
+    IO.inspect(changeset)
+    render(conn, :change_comment,comments: comments, comment: comment, post: post, comment_changeset: changeset)
+  end
+
   def update(conn, %{"id" => id, "post" => post_params}) do
     post = Posts.get_post!(id)
-
     case Posts.update_post(post, post_params) do
       {:ok, post} ->
         conn
@@ -67,6 +75,20 @@ defmodule BlogWeb.PostController do
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, :edit, post: post, changeset: changeset)
+    end
+  end
+
+  def update_comment(conn, %{"id" => id, "comment" => comment_params}) do
+    comment = Comments.get_comment!(id)
+    post = Posts.get_post!(comment.post_id)
+    case Comments.update_comment(comment, comment_params) do
+      {:ok, _comment} ->
+        conn
+        |> put_flash(:info, "Comment updated successfully.")
+        |> redirect(to: ~p"/posts/#{post}")
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, :change_comment, post: post, comment: comment, changeset: changeset)
     end
   end
 
@@ -84,7 +106,7 @@ defmodule BlogWeb.PostController do
     {:ok, _comment} = Comments.delete_comment(comment)
 
     conn
-    |> put_flash(:info, "Post deleted successfully.")
+    |> put_flash(:info, "Comment deleted successfully.")
     |> redirect(to: ~p"/posts/#{comment.post_id}")
   end
 end

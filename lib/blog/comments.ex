@@ -78,7 +78,7 @@ defmodule Blog.Comments do
   """
   def update_comment(%Comment{} = comment, attrs) do
     comment
-    |> Comment.comment_changeset(attrs)
+    |> Comment.comment_changeset(%{"post_id"=> comment.post_id, "content" => attrs["content"]})
     |> Repo.update()
   end
 
