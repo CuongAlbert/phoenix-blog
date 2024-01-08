@@ -23,11 +23,15 @@
       <.link navigate={~p"/posts/#{post}"}>Show</.link>
   </:action>
   <:action :let={post}>
-    <.link navigate={~p"/posts/#{post}/edit"}>Edit</.link>
+    <%= if assigns[:current_user] && post.user_id == assigns[:current_user].id do %>
+      <.link navigate={~p"/posts/#{post}/edit"}>Edit</.link>
+    <% end %>
   </:action>
   <:action :let={post}>
-    <.link href={~p"/posts/#{post}"} method="delete" data-confirm="Are you sure?">
-      Delete
-    </.link>
+    <%= if assigns[:current_user] && post.user_id == assigns[:current_user].id do %>
+      <.link href={~p"/posts/#{post}"} method="delete" data-confirm="Are you sure?">
+        Delete
+      </.link>
+    <% end %>
   </:action>
 </.table>

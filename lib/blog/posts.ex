@@ -7,6 +7,7 @@ defmodule Blog.Posts do
   alias Blog.Repo
 
   alias Blog.Posts.Post
+  alias Blog.Comments.Comment
 
   @doc """
   Returns the list of posts.
@@ -41,10 +42,15 @@ defmodule Blog.Posts do
       ** (Ecto.NoResultsError)
 
   """
-  def get_post!(id), do:
-  Post
-  |> Repo.get!(id)
-  |> Repo.preload(:comments)
+  def get_post!(id) do
+    comments_query = from c in Comment,
+      order_by: [desc: c.inserted_at, desc: c.id],
+      preload: :user
+
+    post_query = from p in Post, preload: [:user, comments: ^comments_query]
+    IO.inspect(post_query)
+    Repo.get!(post_query, id)
+  end
 
   @doc """
   Creates a post.

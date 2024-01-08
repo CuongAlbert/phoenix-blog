@@ -15,19 +15,23 @@
   <:item title="Visibility"><%= @post.visibility %></:item>
 </.list>
 
-<.comment_form changeset={@comment_changeset} action={~p"/comments/?post_id=#{@post.id}"} />
+<.comment_form changeset={@comment_changeset} action={~p"/comments/?post_id=#{@post.id}"} current_user={@current_user}/>
 
 <.table id="comments" rows={@comments}>
   <:col :let={comment} label="Comment"><%= comment.content %></:col>
   <:action :let={comment}>
+  <%= if assigns[:current_user] && comment.user_id == assigns[:current_user].id do %>
     <.link href={~p"/comments/#{comment.id}/change"}>
       Edit
     </.link>
+    <% end %>
   </:action>
   <:action :let={comment}>
+  <%= if assigns[:current_user] && comment.user_id == assigns[:current_user].id do %>
     <.link href={~p"/comments/#{comment.id}"} method="delete" data-confirm="Are you sure?">
       Delete
     </.link>
+    <% end %>
   </:action>
 </.table>
 

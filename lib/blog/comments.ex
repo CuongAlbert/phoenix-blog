@@ -60,7 +60,7 @@ defmodule Blog.Comments do
   """
   def create_comment(post_id, attrs \\ %{}) do
     %Comment{}
-    |> Comment.comment_changeset(%{"post_id"=> post_id, "content" => attrs["content"]})
+    |> Comment.comment_changeset(%{"post_id"=> post_id, "content" => attrs["content"], "user_id" => attrs["user_id"]})
     |> Repo.insert()
   end
 

@@ -8,7 +8,7 @@ defmodule Blog.PostsTest do
 
     import Blog.PostsFixtures
 
-    @invalid_attrs %{title: nil, subtitle: nil, content: nil}
+    @invalid_attrs %{title: nil, content: nil, published_on: nil, visibility: nil, user_id: nil}
 
     test "list_posts/0 returns all posts" do
       post = post_fixture()
@@ -49,7 +49,25 @@ defmodule Blog.PostsTest do
       assert post == Posts.get_post!(post.id)
     end
 
+    test "renders form for editing chosen post", %{conn: conn} do
+      user = user_fixture()
+      post = post_fixture(user_id: user.id)
+      # log in the user
+      conn = conn |> log_in_user(user) |> get(~p"/posts/#{post}/edit")
+      assert html_response(conn, 200) =~ "Edit Post"
+    end
+
+    test "a user cannot edit another user's post", %{conn: conn} do
+      post_user = user_fixture()
+      other_user = user_fixture()
+      post = post_fixture(user_id: post_user.id)
+      conn = conn |> log_in_user(other_user) |> get(~p"/posts/#{post}/edit")
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "You can only edit or delete your own posts."
+      assert redirected_to(conn) == ~p"/posts/#{post}"
+    end
+
     test "delete_post/1 deletes the post" do
+      user = user_fixture()
       post = post_fixture()
       assert {:ok, %Post{}} = Posts.delete_post(post)
       assert_raise Ecto.NoResultsError, fn -> Posts.get_post!(post.id) end
