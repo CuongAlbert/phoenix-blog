@@ -35,4 +35,8 @@
   </:action>
 </.table>
 
+<.table id="tags" rows={@tags}>
+  <:col :let={tag} label="Tags"><%= tag.name %></:col>
+</.table>
+
 <.back navigate={~p"/posts"}>Back to posts</.back>
